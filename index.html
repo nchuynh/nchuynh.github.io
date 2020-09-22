@@ -1,1 +1,151 @@
-Hello World
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>CS171 - HW2</title>
+
+		<!-- Load CSS libraries -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+		<!-- own CSS -->
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+	<body>
+
+	<!-- ********************** ADD YOUR HTML-ELEMENTS HERE *********************** -->	
+	<!-- Make sure to use proper bootstrap! -->
+	<!-- You will need a div-container with the id: 'chart-area' -->
+
+	<div class="container">
+		<div class="row">
+			<div class="col">
+				<h1>
+					Pizza World
+				</h1>
+				<h5>
+					EST. 2016
+				</h5>
+			</div>
+			<div class="col">
+				<p style="font-size:50px">🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕</p>
+			</div>
+		</div>
+		<hr>
+		<br>
+		<!-- drop down menu -->
+		<div class="row">
+			<div class="col align-self-center">
+				<div class="user-control">
+					<div class="form-group">
+						<select id="area" class="form-control" onchange="createVisualization()">
+							<option value="all">All Locations</option>
+							<option value="Boston">Boston</option>
+							<option value="Cambridge">Cambridge</option>
+							<option value="Somerville">Somerville</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="col align-self-center">
+				<div class="user-control">
+					<div class="form-group">
+						<select id="order-type" class="form-control" onchange="createVisualization()">
+							<option value="all">All Order Types</option>
+							<option value="web">Web</option>
+							<option value="phone">Phone</option>
+						</select>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br>
+		<div class="row">
+			<div class="col-5">
+				<table class="table table-bordered">
+					<tr>
+						<th>Number of pizza deliveries</th>
+						<td id="content-1"></td>
+					</tr>
+					<tr>
+						<th>Number of all delivered pizzas</th>
+						<td id="content-2"></td>
+					</tr>
+					<tr>
+						<th>Average delivery time</th>
+						<td id="content-3"></td>
+					</tr>
+					<tr>
+						<th>Total sales in USD</th>
+						<td id="content-4"></td>
+					</tr>
+				</table>
+				<br>
+				<table class="table table-bordered">
+					<tr>
+						<th>Number of all feedback entries</th>
+						<td id="content-5"></td>
+					</tr>
+					<tr>
+						<th>Number of LOW feedback entries</th>
+						<td id="content-6"></td>
+					</tr>
+					<tr>
+						<th>Number of MEDIUM feedback entries</th>
+						<td id="content-7"></td>
+					</tr>
+					<tr>
+						<th>Number of HIGH feedback entries</th>
+						<td id="content-8"></td>
+					</tr>
+				</table>
+			</div>
+			<div class="col-7 justify-content-center align-self-center">
+				<div id="chart-area">
+					<div id="tooltip" class="hidden">
+						<p><strong>Deliveries</strong></p>
+						<p><span id="value"></span></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br>
+		<div class="row">
+			<table class="table table-striped sortable">
+				<thead>
+				<tr class="highlight">
+					<th scope="col">Delivery ID</th>
+					<th scope="col">Punctuality</th>
+					<th scope="col">Quality</th>
+					<th scope="col">Wrong Pizza?</th>
+				</tr>
+				</thead>
+				<tbody id="table_js"></tbody>
+				<tfoot></tfoot>
+			</table>
+		</div>
+	</div>
+
+
+	<!-- embedding JS libraries -->
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+	<!-- d3 -->
+	<script src="https://d3js.org/d3.v6.min.js"></script>
+
+	<!-- data -->
+	<script src="data/delivery-data.js"></script>
+	<script src="data/feedback-data.js"></script>
+
+	<!-- bar chart -->
+	<script src="js/barchart.js"></script>
+
+	<!-- ****** TODO: FILTER DATA, DISPLAY BAR CHART & KEY FIGURES ****** -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="js/main.js"></script>
+	<script src="js/sortable.js"></script>
+	</body>
+</html>
