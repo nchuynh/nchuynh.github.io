@@ -2692,6 +2692,12 @@ class RelationshipVis {
                 if(!active_nodes.includes(d.target)) {
                     active_nodes.push(d.target)
                 }
+
+                let temp_area = vis.data_mapAreasInterests.filter(x=>x.Interest === d.target.name)[0].Area;
+                let tempNode_area = vis.nodes_areas1.filter(x => x.name === temp_area)[0];
+                if(!active_nodes.includes(tempNode_area)){
+                    active_nodes.push(tempNode_area);
+                }
             }
         })
 
@@ -2700,6 +2706,12 @@ class RelationshipVis {
                 active_links.push(d)
                 if(!active_nodes.includes(d.target)) {
                     active_nodes.push(d.target)
+                }
+
+                let temp_area = vis.data_mapAreasInterests.filter(x=>x.Interest === d.target.name)[0].Area;
+                let tempNode_area = vis.nodes_areas2.filter(x => x.name === temp_area)[0];
+                if(!active_nodes.includes(tempNode_area)){
+                    active_nodes.push(tempNode_area);
                 }
             }
         })
