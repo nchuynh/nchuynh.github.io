@@ -2,17 +2,12 @@
 *      class RelationshipVis     *
 * * * * * * * * * * * * * */
 
-class RelationshipVis {
+class RelationshipVis1 {
 
-    constructor(parentElement, data_faculty, data_mapAreasInterests, data_areas, data_interests, data_schools, data_centers){
+    constructor(parentElement, dataPeople, dataCenters){
         this.parentElement = parentElement;
-
-        this.data_faculty = data_faculty;
-        this.data_mapAreasInterests = data_mapAreasInterests;
-        this.data_areas = data_areas;
-        this.data_interests = data_interests;
-        this.data_schools = data_schools;
-        this.data_centers = data_centers;
+        this.dataPeople = dataPeople;
+        this.dataCenters = dataCenters;
 
         this.initVis()
     }
@@ -104,7 +99,7 @@ class RelationshipVis {
     initVis(){
         let vis = this;
 
-        vis.margin = {top: 10, right: 10, bottom: 10, left: 10};
+        vis.margin = {top: 10, right: 10, bottom: 0, left: 10};
         vis.width = $("#" + vis.parentElement).width() - vis.margin.left - vis.margin.right;
         vis.height = $("#" + vis.parentElement).height() - vis.margin.top - vis.margin.bottom;
 
@@ -130,75 +125,94 @@ class RelationshipVis {
         vis.Nodes = [];
         vis.Links = [];
 
-        vis.listFaculty = vis.data_faculty.map(x => x['Title']);
-        vis.listAreas = [...new Set(vis.data_areas.map(x => x['Area']))];
-        vis.listCenters = [...new Set(vis.data_centers.map(x => x['Center']))];
+        vis.filteredData = [];
+        vis.listFaculty = [];
+        vis.listAreas = [];
+        vis.listCenters = [];
+
+        vis.dataPeople.forEach(function(faculty, index){
+            let title = faculty['Title'];
+            let teachingAreas = faculty['Teaching Areas'].split('|');
+            let researchInterests = faculty['Research Interests'].split('|');
+
+            if(teachingAreas.length === 1 && teachingAreas[0] === ""){return;}
+            if(researchInterests.length === 1 && researchInterests[0] === ""){return;}
+
+            vis.filteredData.push(faculty);
+            vis.listFaculty.push(title);
+        });
 
         vis.facultyHalfCount = Math.ceil(vis.listFaculty.length / 2);
-        vis.listFaculty.forEach(function(faculty, index){
-            if(index < vis.facultyHalfCount) {
+
+        vis.filteredData.forEach(function(faculty, index){
+            let title = faculty['Title'];
+            let teachingAreas = faculty['Teaching Areas'].split('|');
+
+            if(index < vis.facultyHalfCount){
                 vis.Nodes.push({
                     "lvl": 1,
-                    "name": faculty
+                    "name": title
                 })
             }else{
                 vis.Nodes.push({
                     "lvl": 3,
-                    "name": faculty
+                    "name": title
                 })
             }
+
+            teachingAreas.forEach(function(area){
+                if(!vis.listAreas.includes(area)){
+                    vis.listAreas.push(area);
+
+                    vis.Nodes.push({
+                        "lvl": 0,
+                        "name": area
+                    })
+
+                    vis.Nodes.push({
+                        "lvl": 4,
+                        "name": area
+                    })
+                }
+
+                if(index < vis.facultyHalfCount){
+                    vis.Links.push({
+                        "source": title,
+                        "target": area,
+                        "lvl": 0
+                    })
+                }else{
+                    vis.Links.push({
+                        "source": title,
+                        "target": area,
+                        "lvl": 3
+                    })
+                }
+            })
         });
 
-        vis.listAreas.forEach(function(area){
-            vis.Nodes.push({
-                "lvl": 0,
-                "name": area
-            })
-            vis.Nodes.push({
-                "lvl": 4,
-                "name": area
-            })
-        });
-
-        vis.listCenters.forEach(function(center){
-            vis.Nodes.push({
-                "lvl": 2,
-                "name": center
-            })
-        });
-
-        vis.data_areas.forEach(function(row){
+        vis.dataCenters.forEach(function(row, index){
             let title = row['Title'];
-            let area = row['Area']
+            let center = row['Center'];
 
-            if (vis.Nodes.filter(obj => { return obj.name === title })[0].lvl === 1) {
-                vis.Links.push({
-                    "source": title,
-                    "target": area,
-                    "lvl": 0
-                })
-            } else {
-                vis.Links.push({
-                    "source": title,
-                    "target": area,
-                    "lvl": 3
+            if(!vis.listFaculty.includes(title)){return;}
+
+            if(!vis.listCenters.includes(center)) {
+                vis.listCenters.push(center);
+
+                vis.Nodes.push({
+                    "lvl": 2,
+                    "name": center
                 })
             }
-        });
 
-        vis.data_centers.forEach(function(row){
-            let title = row['Title'];
-            let center = row['Center']
-
-            if (vis.Nodes.filter(obj => {
-                return obj.name === title
-            })[0].lvl === 1) {
+            if(vis.Nodes.filter(obj => {return obj.name === title})[0].lvl === 1){
                 vis.Links.push({
                     "source": title,
                     "target": center,
                     "lvl": 1
                 })
-            } else {
+            }else{
                 vis.Links.push({
                     "source": title,
                     "target": center,
@@ -208,7 +222,7 @@ class RelationshipVis {
         });
 
         vis.Nodes.sort(function(a,b){
-            if (a.lvl === b.lvl){
+            if (a.lvl === b.lvl && a.lvl !== 2){
                 return a.name.localeCompare(b.name);
             }
             return a.lvl - b.lvl;
@@ -216,8 +230,9 @@ class RelationshipVis {
 
         vis.listAreas.sort(function(a,b){ return a.localeCompare(b) });
         vis.listFaculty.sort(function(a,b){ return a.localeCompare(b) });
-        vis.listCenters.sort(function(a,b){ return a.localeCompare(b) });
+        //vis.listCenters.sort(function(a,b){ return a.localeCompare(b) });
 
+        //vis.colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#f781bf"];
         vis.colors = ["#ed1b34", "#00aaad", "#cbdb2a", "#fcb315", "#4e88c7", "#ffde2d", "#77ced9", "#bb89ca"]
         vis.colors2 = ["#808080", "#696969"]
         vis.colorAreas = d3.scaleOrdinal().domain(vis.listAreas).range(vis.colors)
@@ -246,23 +261,28 @@ class RelationshipVis {
         });
         vis.lvlCount = count.length;
 
-        vis.boxWidth = 130;
-        vis.boxWidthArea = 200;
-        vis.boxWidthCenter = 325;
-        vis.gap = {width: (vis.width - (2*vis.boxWidthArea + 2*vis.boxWidth + vis.boxWidthCenter)) / (vis.lvlCount-1), height: 0.5};
+        vis.boxWidth = 150;
+        vis.boxWidthArea = 220;
+        vis.boxWidthCenter = 300;
+        vis.gap = {width: (vis.width - (2*vis.boxWidthArea + 2*vis.boxWidth + vis.boxWidthCenter)) / (vis.lvlCount-1), height: 0};
 
-        vis.boxHeight = 12;
+        vis.boxHeight = 10;
         vis.boxHeightArea = (vis.height - vis.areaCount*vis.gap.height) / vis.areaCount;
-        vis.boxHeightCenter = (vis.height - vis.centerCount*vis.gap.height) / vis.centerCount;
+        //vis.boxHeightCenter = (vis.height - vis.centerCount*vis.gap.height) / vis.centerCount;
+        vis.boxHeightCenter = 14;
 
-        if(vis.height < 800){
+        vis.schoolOffset = 18;
+        if(vis.height < vis.facultyHalfCount * (vis.boxHeight + vis.gap.height)){
             vis.facultyOffset1 = 0;
             vis.facultyOffset2 = 0;
+            vis.centerOffset = 0;
         }else{
             vis.facultyOffset1 = (vis.height - (vis.facultyHalfCount * vis.boxHeight)) / 2;
             vis.facultyOffset2 = (vis.height - ((vis.facultyCount - vis.facultyHalfCount) * vis.boxHeight)) / 2;
+            vis.centerOffset = (vis.height - (vis.centerCount * vis.boxHeightCenter) - vis.schoolOffset) / 2;
         }
 
+        vis.schoolCount = 0;
         vis.Nodes.forEach(function (d, i) {
             if(d.lvl === 0) {
                 d.x = 0;
@@ -276,9 +296,15 @@ class RelationshipVis {
                 count[d.lvl] += 1;
             }else if(d.lvl === 2){
                 d.x = vis.boxWidthArea + vis.boxWidth + d.lvl*vis.gap.width;
-                d.y = (vis.boxHeightCenter + vis.gap.height) * count[d.lvl];
+                //d.y = (vis.boxHeightCenter + vis.gap.height) * count[d.lvl];
                 d.id = "n" + i;
                 count[d.lvl] += 1;
+                if(vis.schoolCount < 7){
+                    d.y = vis.centerOffset + (vis.boxHeightCenter + vis.gap.height) * count[d.lvl];
+                    vis.schoolCount = vis.schoolCount + 1;
+                }else{
+                    d.y = vis.schoolOffset + vis.centerOffset + (vis.boxHeightCenter + vis.gap.height) * count[d.lvl];
+                }
             }else if(d.lvl === 1){
                 d.x = vis.boxWidthArea + vis.gap.width;
                 d.y = vis.facultyOffset1 + (vis.boxHeight + vis.gap.height) * count[d.lvl];
@@ -339,7 +365,14 @@ class RelationshipVis {
             .on("click", function () {
                 vis.repress(true);
                 vis.mouse_action(d3.select(this).datum(), true, d3.select(this).datum().lvl);
-            })
+            });
+            /*
+            .on("mouseout", function () {
+                vis.repress(false)
+                vis.mouse_action(d3.select(this).datum(), false, d3.select(this).datum().lvl);
+            });
+
+             */
 
         node.append("text")
             .attr("class", "label")
@@ -350,7 +383,14 @@ class RelationshipVis {
                 }else if(d.lvl === 2){
                     return d.y + vis.boxHeightCenter/2+3;
                 }else{
-                    return d.y + vis.boxHeight-3;
+                    return d.y + vis.boxHeight-2;
+                }
+            })
+            .style("font-size", function(d){
+                if(d.lvl === 0 || d.lvl === 4){
+                    return "9px";
+                }else{
+                    return "9px";
                 }
             })
             .text(function (d) { return d.name; });
@@ -378,7 +418,7 @@ class RelationshipVis {
                         } else {
                             oTarget.y += vis.boxWidthArea;
                         }
-                    }else{
+                    } else{
                         oTarget = {
                             x: li.target.y + 0.5 * vis.boxHeightCenter,
                             y: li.target.x
@@ -405,5 +445,18 @@ class RelationshipVis {
                     else{ return vis.colorCenters(li.target.name); }
                 });
         });
+
+        vis.svg.append("text")
+            .attr("x", function(){
+                let gap = (vis.width - 2*vis.boxWidthArea - 2*vis.boxWidth - vis.boxHeightCenter) / 4;
+                return vis.boxWidthArea + vis.boxWidth + 2*gap;
+            })
+            .attr("y", function(){
+                return vis.centerOffset + (vis.boxHeightCenter + vis.gap.height) - 10;
+            })
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("font-weight", "bold")
+            .text("Click on any node to highlight the connections!");
     }
 }
